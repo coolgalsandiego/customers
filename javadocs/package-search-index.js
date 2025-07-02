@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"com.pc.customers"},{"l":"com.pc.customers.advice"},{"l":"com.pc.customers.controller"},{"l":"com.pc.customers.dao"},{"l":"com.pc.customers.dto"},{"l":"com.pc.customers.model"},{"l":"com.pc.customers.service"}];updateSearchResults();
