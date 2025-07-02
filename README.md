@@ -230,6 +230,10 @@ com.pc.customers
 ├── advice          # Global exception handler
 └── CustomersApplication.java
 ```
+---
+## Javadocs
+Can be viewed at [/customers/javadocs/index.html](/customers/javadocs/index.html)
+
 
 ---
 
