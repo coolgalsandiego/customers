@@ -26,7 +26,7 @@ A Spring Boot REST API to manage customer data.
 
 ```bash
 # Clone the repository
-git clone [repo](https://github.com/coolgalsandiego/customers.git)
+git clone https://github.com/coolgalsandiego/customers.git
 
 # Navigate into the project folder
 cd customers
