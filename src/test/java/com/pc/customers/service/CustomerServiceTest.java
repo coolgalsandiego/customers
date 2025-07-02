@@ -3,6 +3,7 @@ package com.pc.customers.service;
 import com.pc.customers.dao.ICustomerDAO;
 import com.pc.customers.dto.CustomerRequest;
 import com.pc.customers.dto.CustomerResponse;
+import com.pc.customers.exception.CustomerServiceException;
 import com.pc.customers.model.Customer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -219,10 +220,10 @@ class CustomerServiceTest {
     }
 
     @Test
-    void updateCustomer_shouldThrowNullPointer_whenRequestIsNull() {
+    void updateCustomer_shouldThrowCustomerServiceException_whenRequestIsNull() {
         when(customerDAO.findById(customerId)).thenReturn(customer);
 
-        assertThrows(NullPointerException.class, () -> customerService.updateCustomer(customerId, null));
+        assertThrows(CustomerServiceException.class, () -> customerService.updateCustomer(customerId, null));
     }
 
 
@@ -431,4 +432,54 @@ class CustomerServiceTest {
         CustomerResponse response = customerService.getCustomerById(customerId);
         assertEquals("Silver", response.getTier());
     }
+
+    @Test
+    void getCustomerById_shouldThrowException_whenDaoFails() {
+        UUID id = UUID.randomUUID();
+        when(customerDAO.findById(id)).thenThrow(new RuntimeException("DB error"));
+
+        CustomerServiceException ex = assertThrows(CustomerServiceException.class, () -> customerService.getCustomerById(id));
+        assertTrue(ex.getMessage().contains("Error retrieving customer with ID"));
+    }
+
+    @Test
+    void getCustomerByName_shouldThrowException_whenDaoFails() {
+        when(customerDAO.findByName("fail")).thenThrow(new RuntimeException("DB error"));
+
+        CustomerServiceException ex = assertThrows(CustomerServiceException.class, () -> customerService.getCustomerByName("fail"));
+        assertTrue(ex.getMessage().contains("Error retrieving customers by name"));
+    }
+
+    @Test
+    void getCustomerByEmail_shouldThrowException_whenDaoFails() {
+        when(customerDAO.findByEmail("fail@example.com")).thenThrow(new RuntimeException("DB error"));
+
+        CustomerServiceException ex = assertThrows(CustomerServiceException.class, () -> customerService.getCustomerByEmail("fail@example.com"));
+        assertTrue(ex.getMessage().contains("Error retrieving customers by email"));
+    }
+
+    @Test
+    void deleteCustomer_shouldThrowException_whenDaoFails() {
+        doThrow(new RuntimeException("DB error")).when(customerDAO).deleteById(customerId);
+
+        assertThrows(RuntimeException.class, () -> customerService.deleteCustomer(customerId));
+    }
+
+    @Test
+    void createCustomer_shouldThrowCustomerServiceException_whenDaoFails() {
+        CustomerRequest request = new CustomerRequest();
+        request.setName("Exception User");
+        request.setEmail("exception@example.com");
+        request.setAnnualSpend(1000.0);
+        request.setLastPurchaseDate(new Date());
+
+        when(customerDAO.save(any(Customer.class))).thenThrow(new RuntimeException("DB failure"));
+
+        CustomerServiceException exception = assertThrows(CustomerServiceException.class, () -> {
+            customerService.createCustomer(request);
+        });
+
+        assertTrue(exception.getMessage().contains("Error creating customer with email: exception@example.com"));
+    }
+
 }
